@@ -1,0 +1,16 @@
+name: TagsCustom
+version: 1.0
+main: org.TagCustom.tagCustom.TagsCustom
+api-version: 1.19
+commands:
+  tag:
+    description: Gérer vos tags
+    usage: /tag <equip|list|reload>
+    permission: TagsCustom.use
+permissions:
+  TagsCustom.use:
+    description: Permet d'utiliser les commandes de tags
+    default: true
+  TagsCustom.admin:
+    description: Permet de gérer les tags (reload)
+    default: op

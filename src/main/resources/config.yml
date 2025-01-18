@@ -1,0 +1,17 @@
+tags:
+  tag1:
+    id: 1
+    permission: TagsCustom.test
+    display: "&6[Tag1]"
+    gradient: "&x&f&f&0&0&0&0"
+  tag2:
+    id: 2
+    permission: TagsCustom.vip
+    display: "&b[VIP]"
+    gradient: "&x&0&f&f&0&0&0-&x&f&f&0&0&f&f"
+menu:
+  title: "Choisissez un tag"
+  rows: 6
+  navigation:
+    previous: "&c<< Précédent"
+    next: "&aSuivant >>"
