@@ -1,16 +1,26 @@
 name: TagsCustom
-version: 1.0
+version: 1.0.0
 main: org.TagCustom.tagCustom.TagsCustom
 api-version: 1.19
+description: Plugin pour gérer des tags personnalisables avec PlaceholderAPI.
+
 commands:
   tag:
-    description: Gérer vos tags
-    usage: /tag <equip|list|reload>
+    description: Gérer vos tags personnalisés.
+    usage: /tag <menu|list|equip|reload>
+    aliases: [tags]
     permission: TagsCustom.use
+
 permissions:
   TagsCustom.use:
-    description: Permet d'utiliser les commandes de tags
+    description: Permet d'utiliser les commandes de base du plugin.
     default: true
   TagsCustom.admin:
-    description: Permet de gérer les tags (reload)
+    description: Permet d'administrer le plugin (reload).
     default: op
+  TagsCustom.tag.<tag_name>:
+    description: Permet d'équiper un tag spécifique.
+    default: op
+
+softdepend:
+  - PlaceholderAPI

@@ -1,6 +1,7 @@
 package org.TagCustom.tagCustom.commands;
 
 import org.TagCustom.tagCustom.TagsCustom;
+import org.TagCustom.tagCustom.menu.TagMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,9 +11,11 @@ import org.bukkit.entity.Player;
 public class TagCommand implements CommandExecutor {
 
     private final TagsCustom plugin;
+    private final TagMenu tagMenu;
 
     public TagCommand(TagsCustom plugin) {
         this.plugin = plugin;
+        this.tagMenu = new TagMenu(plugin); // Gestionnaire du menu des tags
     }
 
     @Override
@@ -24,9 +27,15 @@ public class TagCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        if (args.length == 0 || args[0].equalsIgnoreCase("list")) {
-            // Liste des tags
-            player.sendMessage(ChatColor.GREEN + "Voici la liste des tags disponibles :");
+        // Si aucune commande ou "menu" est tapée, ouvrir le menu
+        if (args.length == 0 || args[0].equalsIgnoreCase("menu")) {
+            tagMenu.openMenu(player, 1); // Ouvre la première page du menu
+            return true;
+        }
+
+        // Commande pour lister tous les tags
+        if (args[0].equalsIgnoreCase("list")) {
+            player.sendMessage(ChatColor.GREEN + "Liste des tags disponibles :");
             plugin.getConfig().getConfigurationSection("tags").getKeys(false).forEach(tag -> {
                 String display = plugin.getConfig().getString("tags." + tag + ".display");
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', display));
@@ -34,6 +43,7 @@ public class TagCommand implements CommandExecutor {
             return true;
         }
 
+        // Commande pour équiper un tag
         if (args[0].equalsIgnoreCase("equip")) {
             if (args.length < 2) {
                 player.sendMessage(ChatColor.RED + "Usage: /tag equip <nom_tag>");
@@ -41,19 +51,17 @@ public class TagCommand implements CommandExecutor {
             }
             String tagName = args[1];
             if (plugin.getConfig().contains("tags." + tagName)) {
-                if (player.hasPermission(plugin.getConfig().getString("tags." + tagName + ".permission"))) {
-                    String display = plugin.getConfig().getString("tags." + tagName + ".display");
-                    player.sendMessage(ChatColor.GREEN + "Vous avez équipé le tag : " + ChatColor.translateAlternateColorCodes('&', display));
-                    // Stocker le tag actif (à implémenter)
-                } else {
-                    player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission pour ce tag.");
-                }
+                plugin.getTagManager().setActiveTag(player, tagName);
+                String display = plugin.getConfig().getString("tags." + tagName + ".display", tagName);
+                player.sendMessage(ChatColor.GREEN + "Vous avez équipé le tag : " +
+                        ChatColor.translateAlternateColorCodes('&', display));
             } else {
                 player.sendMessage(ChatColor.RED + "Tag introuvable !");
             }
             return true;
         }
 
+        // Commande pour recharger la configuration
         if (args[0].equalsIgnoreCase("reload")) {
             if (!player.hasPermission("TagsCustom.admin")) {
                 player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission !");
@@ -64,7 +72,8 @@ public class TagCommand implements CommandExecutor {
             return true;
         }
 
-        player.sendMessage(ChatColor.RED + "Commande invalide. Utilisez /tag <equip|list|reload>.");
+        // Message d'erreur pour une commande invalide
+        player.sendMessage(ChatColor.RED + "Commande invalide. Utilisez /tag <menu|list|equip|reload>.");
         return true;
     }
 }

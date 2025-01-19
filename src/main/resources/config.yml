@@ -1,17 +1,54 @@
 tags:
-  tag1:
+  fire:
     id: 1
-    permission: TagsCustom.test
-    display: "&6[Tag1]"
-    gradient: "&x&f&f&0&0&0&0"
-  tag2:
+    permission: TagsCustom.fire
+    display: "<red>[Fire]</red>"
+  ocean:
     id: 2
-    permission: TagsCustom.vip
-    display: "&b[VIP]"
-    gradient: "&x&0&f&f&0&0&0-&x&f&f&0&0&f&f"
+    permission: TagsCustom.ocean
+    display: "<blue>[Ocean]</blue>"
+  forest:
+    id: 3
+    permission: TagsCustom.forest
+    display: "<green>[Forest]</green>"
+  thunder:
+    id: 4
+    permission: TagsCustom.thunder
+    display: "<yellow>[Thunder]</yellow>"
+  ice:
+    id: 5
+    permission: TagsCustom.ice
+    display: "<aqua>[Ice]</aqua>"
+  meme_master:
+    id: 6
+    permission: TagsCustom.meme
+    display: "<rainbow>[Meme Master]</rainbow>"
+  potato:
+    id: 7
+    permission: TagsCustom.potato
+    display: "<gold>[Potato]</gold>"
+  galaxy:
+    id: 8
+    permission: TagsCustom.galaxy
+    display: "<gradient:#4B0082:#8A2BE2:#00FFFF>[Galaxy]</gradient>"
+  flame:
+    id: 9
+    permission: TagsCustom.flame
+    display: "<gradient:#FF4500:#FFA500>[Flame]</gradient>"
+  frost:
+    id: 10
+    permission: TagsCustom.frost
+    display: "<gradient:#00FFFF:#1E90FF>[Frost]</gradient>"
+
 menu:
-  title: "Choisissez un tag"
+  title: "&6Choisissez un tag"
   rows: 6
   navigation:
-    previous: "&c<< Précédent"
-    next: "&aSuivant >>"
+    previous: "<bold><gradient:#FFAAAA:#FF0000>Précédent</gradient></bold>"
+    next: "<bold><gradient:#AAFFAA:#00FF00>Suivant</gradient></bold>"
+  filler: "GRAY_STAINED_GLASS_PANE"
+
+players:
+# Exemple d'enregistrement de joueurs (sera automatiquement rempli par le plugin)
+# uuid_du_joueur:
+#   activeTag: fire
