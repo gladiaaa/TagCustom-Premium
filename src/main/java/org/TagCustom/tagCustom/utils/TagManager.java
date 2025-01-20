@@ -1,7 +1,6 @@
 package org.TagCustom.tagCustom.utils;
 
 import org.TagCustom.tagCustom.TagsCustom;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -10,48 +9,44 @@ import java.util.List;
 public class TagManager {
 
     private final TagsCustom plugin;
+    private final boolean useFallback;
 
-    public TagManager(TagsCustom plugin) {
+    public TagManager(TagsCustom plugin, boolean useFallback) {
         this.plugin = plugin;
+        this.useFallback = useFallback;
     }
 
-    // Méthode pour récupérer tous les tags définis dans la configuration
     public List<String> getAllTags() {
         List<String> tags = new ArrayList<>();
-        ConfigurationSection section = plugin.getConfig().getConfigurationSection("tags");
-        if (section != null) {
-            tags.addAll(section.getKeys(false));
+        if (plugin.getConfig().getConfigurationSection("tags") != null) {
+            tags.addAll(plugin.getConfig().getConfigurationSection("tags").getKeys(false));
         }
         return tags;
     }
 
-    // Méthode pour récupérer le tag par son ID
-    public String getTagById(int id) {
-        ConfigurationSection section = plugin.getConfig().getConfigurationSection("tags");
-        if (section != null) {
-            for (String tag : section.getKeys(false)) {
-                if (section.getInt(tag + ".id") == id) {
-                    return tag;
-                }
-            }
-        }
-        return null;
-    }
-
-    // Méthode pour définir le tag actif pour un joueur
     public void setActiveTag(Player player, String tagId) {
-        plugin.getConfig().set("players." + player.getUniqueId() + ".activeTag", tagId);
-        plugin.saveConfig();
+        if (useFallback) {
+            plugin.getConfig().set("players." + player.getUniqueId() + ".activeTag", tagId);
+            plugin.saveConfig();
+        } else {
+            plugin.getDatabaseManager().saveActiveTag(player, tagId);
+        }
     }
 
-    // Méthode pour récupérer le tag actif d'un joueur
     public String getActiveTag(Player player) {
-        return plugin.getConfig().getString("players." + player.getUniqueId() + ".activeTag");
+        if (useFallback) {
+            return plugin.getConfig().getString("players." + player.getUniqueId() + ".activeTag");
+        } else {
+            return plugin.getDatabaseManager().getActiveTag(player);
+        }
     }
 
-    // Méthode pour vérifier si un joueur a la permission pour un tag
-    public boolean hasPermissionForTag(Player player, String tagId) {
-        String permission = plugin.getConfig().getString("tags." + tagId + ".permission", "TagsCustom.default");
-        return player.hasPermission(permission);
+    public void removeActiveTag(Player player) {
+        if (useFallback) {
+            plugin.getConfig().set("players." + player.getUniqueId() + ".activeTag", null);
+            plugin.saveConfig();
+        } else {
+            plugin.getDatabaseManager().deleteActiveTag(player);
+        }
     }
 }
