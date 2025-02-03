@@ -1,8 +1,5 @@
 package org.TagCustom.tagCustom.menu;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.TagCustom.tagCustom.TagsCustom;
 import org.TagCustom.tagCustom.utils.TagManager;
 import org.bukkit.Bukkit;
@@ -12,7 +9,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.util.List;
 
 public class TagMenu {
@@ -23,146 +19,102 @@ public class TagMenu {
     public TagMenu(TagsCustom plugin) {
         this.plugin = plugin;
         this.tagManager = plugin.getTagManager();
+        plugin.getLogger().info("✅ TagMenu initialisé avec succès.");
     }
 
-    public void openMenu(Player player, int page) {
+    // 📌 Ouvre le menu des catégories
+    public void openCategoryMenu(Player player) {
+        plugin.getLogger().info("📌 Ouverture du menu des catégories pour " + player.getName());
         int rows = plugin.getConfig().getInt("menu.rows", 6);
-        String title = plugin.getConfig().getString("menu.title", "Choisissez un tag");
-        Inventory inventory = Bukkit.createInventory(null, rows * 9, title + " - Page " + page);
+        String title = plugin.getConfig().getString("menu.title", "Choisissez une catégorie");
+        Inventory inventory = Bukkit.createInventory(null, rows * 9, title);
 
-        List<String> tags = tagManager.getAllTags();
-        int maxItemsPerPage = (rows - 2) * 9; // Dernière ligne réservée pour navigation et tag actif
-        int startIndex = (page - 1) * maxItemsPerPage;
-        int endIndex = Math.min(startIndex + maxItemsPerPage, tags.size());
+        List<String> categories = tagManager.getAllCategories();
+        if (categories.isEmpty()) {
+            player.sendMessage("⚠️ Aucune catégorie trouvée !");
+            return;
+        }
 
-        // Ajouter les tags dans le menu
-        for (int i = startIndex; i < endIndex; i++) {
-            String tagId = tags.get(i);
-            String miniMessageDisplay = plugin.getConfig().getString("tags." + tagId + ".display", "[Tag]");
-
-            // Convertir MiniMessage en legacy pour afficher dans le menu
-            Component component = MiniMessage.miniMessage().deserialize(miniMessageDisplay);
-            String legacyDisplay = LegacyComponentSerializer.legacySection().serialize(component);
-
-            ItemStack item = new ItemStack(Material.NAME_TAG);
+        int index = 0;
+        for (String category : categories) {
+            ItemStack item = new ItemStack(Material.BOOK);
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(legacyDisplay); // Texte formaté
-            meta.setLore(List.of("ID : " + tagId)); // Ajouter l'ID du tag dans la description
+            meta.setDisplayName("§6" + category);
             item.setItemMeta(meta);
 
-            inventory.addItem(item);
-        }
-
-        // Ajouter navigation
-        if (page > 1) {
-            ItemStack previous = createNavigationItem(Material.ARROW, plugin.getConfig().getString("menu.navigation.previous", "<< Précédent"));
-            inventory.setItem((rows * 9) - 9, previous);
-        }
-
-        if (endIndex < tags.size()) {
-            ItemStack next = createNavigationItem(Material.ARROW, plugin.getConfig().getString("menu.navigation.next", "Suivant >>"));
-            inventory.setItem((rows * 9) - 1, next);
-        }
-
-        // Ajouter un item pour afficher/retirer le tag actif
-        String activeTagId = tagManager.getActiveTag(player);
-        String activeTagDisplay = (activeTagId != null)
-                ? plugin.getConfig().getString("tags." + activeTagId + ".display", "<gray>Pas de tag actif")
-                : "<gray>Pas de tag actif";
-        Component activeTagComponent = MiniMessage.miniMessage().deserialize(activeTagDisplay);
-        String legacyActiveTag = LegacyComponentSerializer.legacySection().serialize(activeTagComponent);
-
-        ItemStack activeTagItem = new ItemStack(Material.PAPER); // Exemple : item papier
-        ItemMeta activeMeta = activeTagItem.getItemMeta();
-        activeMeta.setDisplayName(legacyActiveTag);
-        activeMeta.setLore(List.of("§7Cliquez pour retirer le tag actif"));
-        activeTagItem.setItemMeta(activeMeta);
-        inventory.setItem((rows * 9) - 5, activeTagItem); // Mettre au centre de la dernière ligne
-
-        // Remplir avec des items de remplissage
-        ItemStack filler = createFillerItem();
-        for (int i = 0; i < inventory.getSize(); i++) {
-            if (inventory.getItem(i) == null) {
-                inventory.setItem(i, filler);
+            if (index < inventory.getSize()) {
+                inventory.setItem(index, item);
+                index++;
             }
         }
 
         player.openInventory(inventory);
     }
 
-    private ItemStack createNavigationItem(Material material, String name) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
-        item.setItemMeta(meta);
-        return item;
-    }
+    // 📌 Ouvre le menu des tags d'une catégorie
+    public void openTagMenu(Player player, String category) {
+        plugin.getLogger().info("📌 Ouverture du menu des tags pour " + player.getName() + " (Catégorie : " + category + ")");
+        int rows = plugin.getConfig().getInt("menu.rows", 6);
+        String title = "Tags : " + category;
+        Inventory inventory = Bukkit.createInventory(null, rows * 9, title);
 
-    private ItemStack createFillerItem() {
-        String fillerMaterial = plugin.getConfig().getString("menu.filler", "GRAY_STAINED_GLASS_PANE");
-        Material material = Material.matchMaterial(fillerMaterial);
-        if (material == null) material = Material.GRAY_STAINED_GLASS_PANE;
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(" ");
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    public void handleMenuClick(InventoryClickEvent event, int page) {
-        if (event.getClickedInventory() == null || !event.getView().getTitle().contains("Choisissez un tag")) {
-            return; // Ne rien faire si ce n'est pas notre menu
+        List<String> tags = tagManager.getTagsByCategory(category);
+        if (tags.isEmpty()) {
+            player.sendMessage("⚠️ Aucun tag trouvé pour cette catégorie !");
+            return;
         }
 
-        event.setCancelled(true); // Empêcher les interactions
+        int index = 0;
+        for (String tag : tags) {
+            ItemStack item = new ItemStack(Material.NAME_TAG);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName("§e" + tag);
+            item.setItemMeta(meta);
 
+            if (index < inventory.getSize()) {
+                inventory.setItem(index, item);
+                index++;
+            }
+        }
+
+        player.openInventory(inventory);
+    }
+
+    // 📌 Gère les clics dans le menu
+    public void handleMenuClick(InventoryClickEvent event) {
+        event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
 
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-            return; // Ignore les clics sur des cases vides
+            return;
         }
 
-        if (clickedItem.getType() == Material.ARROW) {
-            // Navigation entre les pages
-            String itemName = clickedItem.getItemMeta().getDisplayName();
-            if (itemName.equals(plugin.getConfig().getString("menu.navigation.previous", "<< Précédent"))) {
-                openMenu(player, page - 1);
-            } else if (itemName.equals(plugin.getConfig().getString("menu.navigation.next", "Suivant >>"))) {
-                openMenu(player, page + 1);
+        String title = event.getView().getTitle();
+
+        // 📌 Gestion du menu des catégories
+        if (title.equals(plugin.getConfig().getString("menu.title", "Choisissez une catégorie"))) {
+            if (clickedItem.getType() == Material.BOOK) {
+                String category = clickedItem.getItemMeta().getDisplayName().substring(2); // Retire les codes de couleur
+                plugin.getLogger().info(player.getName() + " a sélectionné la catégorie : " + category);
+                openTagMenu(player, category);
             }
             return;
         }
 
-        if (clickedItem.getType() == Material.PAPER) {
-            // Retirer le tag actif
-            tagManager.setActiveTag(player, null);
-            player.sendMessage("§eVous avez retiré votre tag actif.");
-            openMenu(player, page); // Réafficher le menu
-            return;
-        }
+        // 📌 Gestion du menu des tags
+        if (title.contains("Tags : ")) {
+            String category = title.split("Tags : ")[1];
+            String tagName = clickedItem.getItemMeta().getDisplayName().substring(2); // Retire les codes de couleur
 
-        if (clickedItem.getType() == Material.NAME_TAG) {
-            // Récupérer l'ID depuis la description de l'item
-            List<String> lore = clickedItem.getItemMeta().getLore();
-            if (lore == null || lore.isEmpty() || !lore.get(0).startsWith("ID : ")) {
-                player.sendMessage("§cErreur : Impossible d'identifier le tag sélectionné.");
-                return;
-            }
-
-            String selectedTagId = lore.get(0).substring(5); // Extraire l'ID du tag
-            if (selectedTagId != null && plugin.getConfig().contains("tags." + selectedTagId)) {
-                // Équiper le tag
-                tagManager.setActiveTag(player, selectedTagId);
-
-                String message = "<green>Vous avez équipé le tag : </green>" + plugin.getConfig().getString("tags." + selectedTagId + ".display", "[Tag]");
-                Component formattedMessage = MiniMessage.miniMessage().deserialize(message);
-                player.sendMessage(LegacyComponentSerializer.legacySection().serialize(formattedMessage));
-
-                player.closeInventory();
+            // 📌 Équipe le tag
+            if (tagManager.tagExists(category, tagName)) {
+                tagManager.setActiveTag(player, tagName);
+                player.sendMessage("✅ Vous avez équipé le tag : " + tagManager.getTagDisplay(category, tagName));
             } else {
-                player.sendMessage("§cErreur : Tag introuvable ou non valide.");
+                player.sendMessage("❌ Tag introuvable !");
             }
+            player.closeInventory();
         }
     }
 }

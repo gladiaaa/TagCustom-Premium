@@ -8,20 +8,20 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class MenuClickListener implements Listener {
 
-    private final TagsCustom plugin;
     private final TagMenu tagMenu;
 
     public MenuClickListener(TagsCustom plugin) {
-        this.plugin = plugin;
         this.tagMenu = new TagMenu(plugin);
+        plugin.getLogger().info("✅ MenuClickListener initialisé avec succès.");
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        String title = event.getView().getTitle();
-        if (title.startsWith(plugin.getConfig().getString("menu.title", "Sélectionnez un tag"))) {
-            int page = Integer.parseInt(title.split("Page ")[1]); // Récupérer le numéro de page
-            tagMenu.handleMenuClick(event, page);
+        if (event.getClickedInventory() == null || event.getCurrentItem() == null) {
+            return;
         }
+
+        // 📌 Transmet l'événement au menu
+        tagMenu.handleMenuClick(event);
     }
 }

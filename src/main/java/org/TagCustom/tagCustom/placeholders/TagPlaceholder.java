@@ -44,32 +44,37 @@ public class TagPlaceholder extends PlaceholderExpansion {
             return "";
         }
 
-        // Gestion du placeholder Player_tag
+        // ✅ Placeholder : %tags_Player_tag%
         if (identifier.equals("Player_tag")) {
             String tagId = plugin.getTagManager().getActiveTag(player);
-            if (tagId == null) {
+            if (tagId == null || tagId.isEmpty()) {
+                return "<gray>Aucun tag</gray>"; // Si aucun tag actif, renvoyer un message par défaut
+            }
+
+            // ✅ Vérifier la catégorie pour récupérer l'affichage exact
+            String category = plugin.getTagManager().getCategoryOfTag(tagId);
+            if (category == null) {
                 return "<gray>Aucun tag</gray>";
             }
 
-            // Récupérer le texte MiniMessage depuis la configuration
-            String miniMessageDisplay = plugin.getConfig().getString("tags." + tagId + ".display", "<gray>[Tag]</gray>");
+            // ✅ Récupérer l'affichage du tag (MiniMessage)
+            String miniMessageDisplay = plugin.getConfig().getString("tags." + category + "." + tagId + ".display", "<gray>[Tag]</gray>");
 
-            // Retourner le texte tel quel pour une interprétation par zEssential
+            // ✅ Important : Retourner directement MiniMessage pour être interprété par zEssential
             return miniMessageDisplay;
         }
 
-        // Placeholder par ID : %tags_id_1%
+        // ✅ Placeholder : %tags_id_1% (Permet d'afficher un tag via son ID)
         if (identifier.startsWith("id_")) {
             String id = identifier.split("_")[1]; // Récupère l'ID
-            String tagId = plugin.getConfig().getConfigurationSection("tags").getKeys(false).stream()
-                    .filter(tag -> plugin.getConfig().getInt("tags." + tag + ".id") == Integer.parseInt(id))
-                    .findFirst().orElse(null);
-
-            if (tagId != null) {
-                return plugin.getConfig().getString("tags." + tagId + ".display", "<gray>[Tag]</gray>");
-            } else {
-                return "<gray>Tag introuvable</gray>";
+            for (String category : plugin.getConfig().getConfigurationSection("tags").getKeys(false)) {
+                for (String tag : plugin.getConfig().getConfigurationSection("tags." + category).getKeys(false)) {
+                    if (plugin.getConfig().getInt("tags." + category + "." + tag + ".id") == Integer.parseInt(id)) {
+                        return plugin.getConfig().getString("tags." + category + "." + tag + ".display", "<gray>[Tag]</gray>");
+                    }
+                }
             }
+            return "<gray>Tag introuvable</gray>";
         }
 
         return null; // Placeholder non reconnu

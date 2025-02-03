@@ -1,5 +1,5 @@
 name: TagsCustom
-version: 1.0.0
+version: 1.0.1
 main: org.TagCustom.tagCustom.TagsCustom
 api-version: 1.19
 description: Plugin pour gérer des tags personnalisables avec PlaceholderAPI.

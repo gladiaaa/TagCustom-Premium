@@ -2,93 +2,83 @@
 
 # Paramètres de la base de données
 database:
-  type: "sqlite" # Type de base de données : "sqlite" ou "mysql"
+  type: "mysql" # Type de base de données : "sqlite" ou "mysql"
   mysql:
     host: "localhost"       # Adresse du serveur MySQL
     port: 3306              # Port du serveur MySQL
-    database: "tags"        # Nom de la base de données MySQL
-    username: "root"        # Nom d'utilisateur MySQL
-    password: ""            # Mot de passe MySQL
+    database: "minecraft_data"        # Nom de la base de données MySQL
+    username: "minecraft_user"        # Nom d'utilisateur MySQL
+    password: "m9/.riE/r!0ZENKV"      # Mot de passe MySQL
 
 # Configuration des tags
 tags:
-  # Tags avec couleurs simples
-  fire:
-    id: 1
-    permission: "TagsCustom.fire"
-    display: "<red>[Fire]</red>" # Couleur rouge
-  ocean:
-    id: 2
-    permission: "TagsCustom.ocean"
-    display: "<blue>[Ocean]</blue>" # Couleur bleue
-  forest:
-    id: 3
-    permission: "TagsCustom.forest"
-    display: "<green>[Forest]</green>" # Couleur verte
+  nature: # Catégorie Nature
+    forest:
+      id: 1
+      permission: "TagsCustom.forest"
+      display: "<green>[Forest]</green>" # Couleur verte
+    ocean:
+      id: 2
+      permission: "TagsCustom.ocean"
+      display: "<blue>[Ocean]</blue>" # Couleur bleue
 
-  # Tags avec des dégradés
-  galaxy:
-    id: 4
-    permission: "TagsCustom.galaxy"
-    display: "<gradient:#4B0082:#8A2BE2:#00FFFF>[Galaxy]</gradient>" # Dégradé violet à bleu
-  flame:
-    id: 5
-    permission: "TagsCustom.flame"
-    display: "<gradient:#FF4500:#FFA500>[Flame]</gradient>" # Dégradé orange à rouge
-  frost:
-    id: 6
-    permission: "TagsCustom.frost"
-    display: "<gradient:#00FFFF:#1E90FF>[Frost]</gradient>" # Dégradé cyan à bleu
+  elements: # Catégorie Éléments
+    fire:
+      id: 3
+      permission: "TagsCustom.fire"
+      display: "<red>[Fire]</red>" # Couleur rouge
+    frost:
+      id: 4
+      permission: "TagsCustom.frost"
+      display: "<gradient:#00FFFF:#1E90FF>[Frost]</gradient>" # Dégradé cyan à bleu
+    flame:
+      id: 5
+      permission: "TagsCustom.flame"
+      display: "<gradient:#FF4500:#FFA500>[Flame]</gradient>" # Dégradé orange à rouge
 
-  # Tags avec animations (arc-en-ciel)
-  rainbow:
-    id: 7
-    permission: "TagsCustom.rainbow"
-    display: "<rainbow>[Rainbow]</rainbow>" # Effet arc-en-ciel
-  sparkle:
-    id: 8
-    permission: "TagsCustom.sparkle"
-    display: "<rainbow>[Sparkle]</rainbow>" # Effet similaire, mais texte modifiable
+  cosmic: # Catégorie Cosmique
+    galaxy:
+      id: 6
+      permission: "TagsCustom.galaxy"
+      display: "<gradient:#4B0082:#8A2BE2:#00FFFF>[Galaxy]</gradient>" # Dégradé violet à bleu
+    rainbow:
+      id: 7
+      permission: "TagsCustom.rainbow"
+      display: "<rainbow>[Rainbow]</rainbow>" # Effet arc-en-ciel
 
-  # Tags avec des motifs complexes
-  glitch:
-    id: 9
-    permission: "TagsCustom.glitch"
-    display: "<gradient:#FF0000:#FF4500:#FF0000>[Glitch]</gradient>" # Motif de glitch (alternance rouge)
-  thunder:
-    id: 10
-    permission: "TagsCustom.thunder"
-    display: "<yellow><bold>[Thunder]</bold></yellow>" # Texte en gras et en jaune
+  advanced: # Catégorie Avancée
+    king:
+      id: 8
+      permission: "TagsCustom.king"
+      display: "<gold><bold>[King]</bold></gold>" # Texte doré et en gras
+    queen:
+      id: 9
+      permission: "TagsCustom.queen"
+      display: "<gradient:#FF69B4:#FF1493>[Queen]</gradient>" # Dégradé rose vif
+    thunder:
+      id: 10
+      permission: "TagsCustom.thunder"
+      display: "<yellow><bold>[Thunder]</bold></yellow>" # Texte en gras et en jaune
 
-  # Tags avec des styles avancés
-  king:
-    id: 11
-    permission: "TagsCustom.king"
-    display: "<gold><bold>[King]</bold></gold>" # Texte doré et en gras
-  queen:
-    id: 12
-    permission: "TagsCustom.queen"
-    display: "<gradient:#FF69B4:#FF1493>[Queen]</gradient>" # Dégradé rose vif
+  fun: # Catégorie Amusante
+    meme_master:
+      id: 11
+      permission: "TagsCustom.meme"
+      display: "<rainbow><bold>[Meme Master]</bold></rainbow>" # Texte arc-en-ciel et en gras
+    potato:
+      id: 12
+      permission: "TagsCustom.potato"
+      display: "<yellow>[Potato]</yellow>" # Simple couleur jaune
 
-  # Tags pour les fans de mèmes
-  meme_master:
-    id: 13
-    permission: "TagsCustom.meme"
-    display: "<rainbow><bold>[Meme Master]</bold></rainbow>" # Texte arc-en-ciel et en gras
-  potato:
-    id: 14
-    permission: "TagsCustom.potato"
-    display: "<yellow>[Potato]</yellow>" # Simple couleur jaune
-
-  # Tags mystiques
-  shadow:
-    id: 15
-    permission: "TagsCustom.shadow"
-    display: "<dark_gray><italic>[Shadow]</italic></dark_gray>" # Italique gris foncé
-  light:
-    id: 16
-    permission: "TagsCustom.light"
-    display: "<white><bold>[Light]</bold></white>" # Blanc et gras
+  mystical: # Catégorie Mystique
+    shadow:
+      id: 13
+      permission: "TagsCustom.shadow"
+      display: "<dark_gray><italic>[Shadow]</italic></dark_gray>" # Italique gris foncé
+    light:
+      id: 14
+      permission: "TagsCustom.light"
+      display: "<white><bold>[Light]</bold></white>" # Blanc et gras
 
 # Configuration du menu
 menu:
