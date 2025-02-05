@@ -58,29 +58,40 @@ public class DatabaseManager {
     public void saveActiveTag(Player player, String tagId) {
         String query = "INSERT INTO player_tags (uuid, active_tag) VALUES (?, ?) ON DUPLICATE KEY UPDATE active_tag = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
+            plugin.getLogger().info("📡 SQL : Tentative de mise à jour du tag '" + tagId + "' pour " + player.getName());
+
             statement.setString(1, player.getUniqueId().toString());
             statement.setString(2, tagId);
             statement.setString(3, tagId);
-            statement.executeUpdate();
-            plugin.getLogger().info("✅ Tag enregistré en base pour " + player.getName() + " : " + tagId);
+            int rowsAffected = statement.executeUpdate();
+
+            plugin.getLogger().info("✅ SQL : " + rowsAffected + " ligne(s) mise(s) à jour pour " + player.getName());
         } catch (SQLException e) {
-            plugin.getLogger().severe("❌ Erreur lors de l'enregistrement : " + e.getMessage());
+            plugin.getLogger().severe("❌ Erreur SQL lors de l'enregistrement du tag : " + e.getMessage());
         }
     }
+
 
     public String getActiveTag(Player player) {
         String query = "SELECT active_tag FROM player_tags WHERE uuid = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, player.getUniqueId().toString());
             ResultSet resultSet = statement.executeQuery();
+
             if (resultSet.next()) {
-                return resultSet.getString("active_tag");
+                String tag = resultSet.getString("active_tag");
+                plugin.getLogger().info("🎯 SQL : Tag récupéré pour " + player.getName() + " → " + tag);
+                return tag;
+            } else {
+                plugin.getLogger().warning("⚠️ SQL : Aucun tag trouvé pour " + player.getName() + " en base !");
             }
         } catch (SQLException e) {
-            plugin.getLogger().severe("❌ Erreur lors de la récupération du tag : " + e.getMessage());
+            plugin.getLogger().severe("❌ Erreur SQL lors de la récupération du tag : " + e.getMessage());
         }
         return null;
     }
+
+
 
     public void deleteActiveTag(Player player) {
         String query = "DELETE FROM player_tags WHERE uuid = ?";

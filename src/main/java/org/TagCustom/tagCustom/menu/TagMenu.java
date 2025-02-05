@@ -1,120 +1,60 @@
 package org.TagCustom.tagCustom.menu;
 
-import org.TagCustom.tagCustom.TagsCustom;
-import org.TagCustom.tagCustom.utils.TagManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.TagCustom.tagCustom.TagsCustom;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import java.util.List;
 
 public class TagMenu {
-
     private final TagsCustom plugin;
-    private final TagManager tagManager;
+    private final String category;
 
-    public TagMenu(TagsCustom plugin) {
+    public TagMenu(TagsCustom plugin, String category) {
         this.plugin = plugin;
-        this.tagManager = plugin.getTagManager();
-        plugin.getLogger().info("✅ TagMenu initialisé avec succès.");
+        this.category = category;
     }
 
-    // 📌 Ouvre le menu des catégories
-    public void openCategoryMenu(Player player) {
-        plugin.getLogger().info("📌 Ouverture du menu des catégories pour " + player.getName());
-        int rows = plugin.getConfig().getInt("menu.rows", 6);
-        String title = plugin.getConfig().getString("menu.title", "Choisissez une catégorie");
-        Inventory inventory = Bukkit.createInventory(null, rows * 9, title);
+    /**
+     * Ouvre le menu des tags pour une catégorie sélectionnée.
+     * @param player Joueur qui ouvre le menu.
+     */
+    public void open(Player player) {
+        // ✅ Formater le titre du menu avec une couleur
+        String formattedTitle = LegacyComponentSerializer.legacySection().serialize(
+                MiniMessage.miniMessage().deserialize("📜 <gold>Tags : " + category + "</gold>")
+        );
 
-        List<String> categories = tagManager.getAllCategories();
-        if (categories.isEmpty()) {
-            player.sendMessage("⚠️ Aucune catégorie trouvée !");
-            return;
-        }
+        Inventory inv = Bukkit.createInventory(null, 54, formattedTitle);
 
-        int index = 0;
-        for (String category : categories) {
-            ItemStack item = new ItemStack(Material.BOOK);
-            ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName("§6" + category);
-            item.setItemMeta(meta);
-
-            if (index < inventory.getSize()) {
-                inventory.setItem(index, item);
-                index++;
-            }
-        }
-
-        player.openInventory(inventory);
-    }
-
-    // 📌 Ouvre le menu des tags d'une catégorie
-    public void openTagMenu(Player player, String category) {
-        plugin.getLogger().info("📌 Ouverture du menu des tags pour " + player.getName() + " (Catégorie : " + category + ")");
-        int rows = plugin.getConfig().getInt("menu.rows", 6);
-        String title = "Tags : " + category;
-        Inventory inventory = Bukkit.createInventory(null, rows * 9, title);
-
-        List<String> tags = tagManager.getTagsByCategory(category);
+        List<String> tags = plugin.getTagManager().getTagsByCategory(category);
         if (tags.isEmpty()) {
             player.sendMessage("⚠️ Aucun tag trouvé pour cette catégorie !");
             return;
         }
 
-        int index = 0;
+        int slot = 0;
         for (String tag : tags) {
-            ItemStack item = new ItemStack(Material.NAME_TAG);
-            ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName("§e" + tag);
-            item.setItemMeta(meta);
+            ItemStack tagItem = new ItemStack(Material.NAME_TAG);
+            ItemMeta meta = tagItem.getItemMeta();
 
-            if (index < inventory.getSize()) {
-                inventory.setItem(index, item);
-                index++;
-            }
+            // ✅ Convertir MiniMessage en texte coloré utilisable dans Minecraft
+            String tagDisplay = plugin.getTagManager().getTagDisplay(category, tag);
+            String formattedTag = LegacyComponentSerializer.legacySection().serialize(
+                    MiniMessage.miniMessage().deserialize(tagDisplay)
+            );
+
+            meta.setDisplayName(formattedTag);
+            tagItem.setItemMeta(meta);
+            inv.setItem(slot++, tagItem);
         }
 
-        player.openInventory(inventory);
-    }
-
-    // 📌 Gère les clics dans le menu
-    public void handleMenuClick(InventoryClickEvent event) {
-        event.setCancelled(true);
-        Player player = (Player) event.getWhoClicked();
-        ItemStack clickedItem = event.getCurrentItem();
-
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-            return;
-        }
-
-        String title = event.getView().getTitle();
-
-        // 📌 Gestion du menu des catégories
-        if (title.equals(plugin.getConfig().getString("menu.title", "Choisissez une catégorie"))) {
-            if (clickedItem.getType() == Material.BOOK) {
-                String category = clickedItem.getItemMeta().getDisplayName().substring(2); // Retire les codes de couleur
-                plugin.getLogger().info(player.getName() + " a sélectionné la catégorie : " + category);
-                openTagMenu(player, category);
-            }
-            return;
-        }
-
-        // 📌 Gestion du menu des tags
-        if (title.contains("Tags : ")) {
-            String category = title.split("Tags : ")[1];
-            String tagName = clickedItem.getItemMeta().getDisplayName().substring(2); // Retire les codes de couleur
-
-            // 📌 Équipe le tag
-            if (tagManager.tagExists(category, tagName)) {
-                tagManager.setActiveTag(player, tagName);
-                player.sendMessage("✅ Vous avez équipé le tag : " + tagManager.getTagDisplay(category, tagName));
-            } else {
-                player.sendMessage("❌ Tag introuvable !");
-            }
-            player.closeInventory();
-        }
+        player.openInventory(inv);
     }
 }

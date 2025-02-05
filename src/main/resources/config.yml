@@ -10,6 +10,16 @@ database:
     username: "Minecraft_access"        # Nom d'utilisateur MySQL
     password: "1234"      # Mot de passe MySQL
 
+
+# Configuration des catégories et de leurs icônes
+category_items:
+  nature: "OAK_SAPLING"
+  elements: "FIRE_CHARGE"
+  cosmic: "ENDER_PEARL"
+  advanced: "NETHER_STAR"
+  fun: "PLAYER_HEAD"
+  mystical: "ENCHANTED_BOOK"
+
 # Configuration des tags
 tags:
   nature: # Catégorie Nature
@@ -79,6 +89,8 @@ tags:
       id: 14
       permission: "TagsCustom.light"
       display: "<white><bold>[Light]</bold></white>" # Blanc et gras
+
+
 
 # Configuration du menu
 menu:

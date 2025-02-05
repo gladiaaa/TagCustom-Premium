@@ -44,9 +44,13 @@ public class TagManager {
     // 📌 Vérifier si un tag existe dans une catégorie
     public boolean tagExists(String category, String tagId) {
         boolean exists = plugin.getConfig().contains("tags." + category + "." + tagId);
+
         if (!exists) {
             plugin.getLogger().warning("⚠️ Le tag '" + tagId + "' n'existe pas dans '" + category + "'");
+        } else {
+            plugin.getLogger().info("✅ Tag '" + tagId + "' trouvé dans '" + category + "'");
         }
+
         return exists;
     }
 
@@ -55,18 +59,23 @@ public class TagManager {
         return plugin.getConfig().getString("tags." + category + "." + tagId + ".display", "<gray>[Tag]</gray>");
     }
 
-    // 📌 Définir un tag actif pour un joueur
     public void setActiveTag(Player player, String tagId) {
+        plugin.getLogger().info("📌 Demande d'équipement du tag '" + tagId + "' pour " + player.getName());
+
         if (useFallback) {
+            plugin.getLogger().info("💾 Mode Fallback activé : enregistrement dans config.yml");
             plugin.getConfig().set("players." + player.getUniqueId() + ".activeTag", tagId);
             plugin.saveConfig();
         } else {
+            plugin.getLogger().info("📡 Enregistrement du tag dans la base de données...");
             plugin.getDatabaseManager().saveActiveTag(player, tagId);
         }
 
-        plugin.getLogger().info("✅ Tag actif défini pour " + player.getName() + " : " + tagId);
-        applyTagToPlayer(player); // Mise à jour du pseudo du joueur avec le tag
+        plugin.getLogger().info("✅ Tag '" + tagId + "' équipé pour " + player.getName());
+        applyTagToPlayer(player);
     }
+
+
 
     // 📌 Récupérer le tag actif d'un joueur
     public String getActiveTag(Player player) {
@@ -81,12 +90,25 @@ public class TagManager {
 
     // 📌 Appliquer le tag sur le joueur (ex: mettre à jour le pseudo)
     public void applyTagToPlayer(Player player) {
-        String activeTag = getActiveTag(player);
-        if (!activeTag.isEmpty()) {
-            player.setDisplayName(ChatColor.translateAlternateColorCodes('&', activeTag) + " " + player.getName());
-            plugin.getLogger().info("🎭 Nouveau pseudo pour " + player.getName() + " : " + player.getDisplayName());
+        String activeTagId = getActiveTag(player);
+
+        if (!activeTagId.isEmpty()) {
+            String category = getCategoryOfTag(activeTagId);
+
+            if (category != null) {
+                String displayTag = getTagDisplay(category, activeTagId);
+
+                // Appliquer le format du tag au pseudo
+                player.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayTag) + " " + player.getName());
+                plugin.getLogger().info("🎭 Pseudo mis à jour pour " + player.getName() + " → " + player.getDisplayName());
+            } else {
+                plugin.getLogger().warning("⚠️ Impossible de trouver la catégorie du tag '" + activeTagId + "'");
+            }
+        } else {
+            plugin.getLogger().warning("⚠️ Aucun tag actif trouvé pour " + player.getName());
         }
     }
+
 
     // 📌 Supprimer le tag actif d'un joueur
     public void removeActiveTag(Player player) {
